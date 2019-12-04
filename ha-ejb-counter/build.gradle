@@ -1,0 +1,130 @@
+plugins {
+    id 'java'
+    id 'java-library'
+
+    id 'war'
+}
+
+
+def load_balancer_home="/home/nghiselli/Projects/DistributedSystemsM/JBoss-Lenovo/LOCAL-STANDALONE/LOAD-BALANCER//wildfly-17.0.1.Final"
+def server1_home="/home/nghiselli/Projects/DistributedSystemsM/JBoss-Lenovo/LOCAL-STANDALONE/SERVER1/wildfly-17.0.1.Final"
+def server2_home="/home/nghiselli/Projects/DistributedSystemsM/JBoss-Lenovo/LOCAL-STANDALONE/SERVER2/wildfly-17.0.1.Final"
+def war_name="ha-ejb-counter.war"
+repositories {
+
+    mavenLocal()
+    mavenCentral()
+
+    jcenter()
+}
+
+dependencies {
+
+    // EJB -----------------------------------------------------------------------------------------------------
+
+    // https://mvnrepository.com/artifact/javax.ejb/javax.ejb-api
+    compile group: 'javax.ejb', name: 'javax.ejb-api', version: '3.2'
+
+    // https://mvnrepository.com/artifact/javax.annotation/javax.annotation-api
+    compile group: 'javax.annotation', name: 'javax.annotation-api', version: '1.3.2'
+
+    // https://mvnrepository.com/artifact/javax.enterprise/cdi-api
+    providedCompile group: 'javax.enterprise', name: 'cdi-api', version: '1.0-SP1'
+
+    // SERVLET -----------------------------------------------------------------------------------------------------
+
+    // https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api
+    providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
+
+    // LOGGER -----------------------------------------------------------------------------------------------------
+
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.29'
+
+
+}
+
+task deployWars( ){
+
+    println("running dependencies.....")
+    dependsOn('war')
+
+    println("dependencies resolved.....")
+
+    println("deployin war package.....")
+
+    println("deleting old deployments.....")
+    delete("$server1_home/standalone/deployments/$war_name")
+    delete("$server2_home/standalone/deployments/$war_name")
+    println("old depployments deleted.....")
+
+    println("Coping new deployment into $server1_home.....")
+    copy(){
+        from "$buildDir/libs/$war_name"
+        into "$server1_home/standalone/deployments/"
+    }
+    println("Done!")
+
+    println("Coping new deployment into $server2_home.....")
+    copy(){
+        from "$buildDir/libs/$war_name"
+        into "$server2_home/standalone/deployments/"
+    }
+    println("Done!")
+
+    println("Applications deployed!")
+}
+
+task testintellijcommit(){
+
+    println("works!")
+}
+
+// WAR SECTION ---------------------------------------------------------------------------------
+task prepareWar(){
+
+//    dependsOn('clean')
+//    dependsOn('build')
+
+    doLast {
+        println("Preparing WAR file...")
+
+        //PAGES
+        copy {
+            from "$projectDir/src/main/webapp/index.jsp"
+            into "$buildDir/tmp/war"
+        }
+
+        //WEB.XML
+        copy {
+            from "$projectDir/src/main/webapp/WEB-INF/web.xml"
+            into "$buildDir/tmp/war/WEB-INF/"
+        }
+
+        /*
+        // HIBERNATE.CFG.XML
+        copy {
+            from "$projectDir/src/main/java/hibernate.cfg.xml"
+            into "$buildDir/tmp/war/WEB-INF/"
+        }
+        */
+
+        //CLASSES
+        copy {
+            from "$buildDir/classes/java/main/"
+            into "$buildDir/tmp/war/WEB-INF/classes/"
+        }
+
+        //EVENTUALLY - LIBS
+//    copy {
+//        from "$buildDir/libs("
+//        into "$buildDir/tmp/war/WEB-INF/libs"
+//    }
+
+        //EVENTUALLY - TAGS
+//    copy {
+//        from "$buildDir/tags"
+//        into "$buildDir/tmp/war/WEB-INF/tags"
+//    }
+    }
+}
