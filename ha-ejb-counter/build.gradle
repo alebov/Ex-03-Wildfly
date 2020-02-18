@@ -6,9 +6,9 @@ plugins {
 }
 
 
-def load_balancer_home="/home/nghiselli/Projects/DistributedSystemsM/JBoss-Lenovo/LOCAL-STANDALONE/LOAD-BALANCER//wildfly-17.0.1.Final"
-def server1_home="/home/nghiselli/Projects/DistributedSystemsM/JBoss-Lenovo/LOCAL-STANDALONE/SERVER1/wildfly-17.0.1.Final"
-def server2_home="/home/nghiselli/Projects/DistributedSystemsM/JBoss-Lenovo/LOCAL-STANDALONE/SERVER2/wildfly-17.0.1.Final"
+def load_balancer_home="/Users/alessandrobovicelli/Desktop/Università/II_Magistrale/Sistemi_Distribuiti/Esercitazioni/5-Clustering/LOAD-BALANCER/wildfly-18.0.1.Final"
+def server1_home="/Users/alessandrobovicelli/Desktop/Università/II_Magistrale/Sistemi_Distribuiti/Esercitazioni/5-Clustering/SERVER1/wildfly-18.0.1.Final"
+def server2_home="/Users/alessandrobovicelli/Desktop/Università/II_Magistrale/Sistemi_Distribuiti/Esercitazioni/5-Clustering/SERVER2/wildfly-18.0.1.Final"
 def war_name="ha-ejb-counter.war"
 repositories {
 
@@ -57,6 +57,13 @@ task deployWars( ){
     delete("$server1_home/standalone/deployments/$war_name")
     delete("$server2_home/standalone/deployments/$war_name")
     println("old depployments deleted.....")
+
+    println("Coping new deployment into $load_balancer_home.....")
+    copy(){
+        from "$buildDir/libs/$war_name"
+        into "$load_balancer_home/standalone/deployments/"
+    }
+    println("Done!")
 
     println("Coping new deployment into $server1_home.....")
     copy(){

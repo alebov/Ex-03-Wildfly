@@ -53,3 +53,5 @@ Thumbs.db
 */.idea/
 */build/
 */.gradle/
+/Ex-03-Wildfly.iml
+/.idea/
